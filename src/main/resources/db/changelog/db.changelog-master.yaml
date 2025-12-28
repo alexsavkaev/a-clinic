@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schema/schema-setup.yaml
+  - include:
+      file: db/changelog/data/insert-data.yaml
+      context: dev
