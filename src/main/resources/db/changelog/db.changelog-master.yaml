@@ -1,10 +1,6 @@
 databaseChangeLog:
-  - includeAll:
-      path: db/changelog/schema/yaml/init
-  - includeAll:
-      path: db/changelog/schema/yaml/add-fk
-  - includeAll:
-      path: db/changelog/schema/yaml/add-index
-  - includeAll:
-      path: db/changelog/data/yaml
+  - include:
+      file: db/changelog/schema/schema-setup.yaml
+  - include:
+      file: db/changelog/data/insert-data.yaml
       context: dev

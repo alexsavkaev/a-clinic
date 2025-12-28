@@ -1,0 +1,301 @@
+databaseChangeLog:
+# Create init schemas db
+  - changeSet:
+      id: 001-init-vets-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: vets
+      changes:
+        - createTable:
+            tableName: vets
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: first_name
+                  type: varchar(30)
+              - column:
+                  name: last_name
+                  type: varchar(30)
+  - changeSet:
+      id: 003-init-specialties-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: specialties
+      changes:
+        - createTable:
+            tableName: specialties
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(30)
+  - changeSet:
+      id: 007-init-types-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: types
+      changes:
+        - createTable:
+            tableName: types
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(30)
+  - changeSet:
+      id: 009-init-owners-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: owners
+      changes:
+        - createTable:
+            tableName: owners
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: first_name
+                  type: varchar(30)
+              - column:
+                  name: last_name
+                  type: varchar(30)
+              - column:
+                  name: address
+                  type: varchar(50)
+              - column:
+                  name: city
+                  type: varchar(40)
+              - column:
+                  name: telephone
+                  type: varchar(10)
+  - changeSet:
+      id: 005-init-vet_specialties-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: vet_specialties
+      changes:
+        - createTable:
+            tableName: vet_specialties
+            columns:
+              - column:
+                  name: vet_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: specialty_id
+                  type: int
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 011-init-pets-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: pets
+      changes:
+        - createTable:
+            tableName: pets
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(30)
+              - column:
+                  name: birth_date
+                  type: date
+              - column:
+                  name: type_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: int
+  - changeSet:
+      id: 014-init-visits-schema
+      author: vsevolodkolmogorov
+      preConditions:
+        - onFail: HALT
+        - not:
+            tableExists:
+              tableName: visits
+      changes:
+        - createTable:
+            tableName: visits
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: pet_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: visit_date
+                  type: date
+              - column:
+                  name: description
+                  type: varchar(50)
+# Create Foreign keys
+  - changeSet:
+      id: 006-add-vet_specialties-fk
+      author: vsevolodkolmogorov
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: fk_vets_specialties_vet
+            baseTableName: vet_specialties
+            baseColumnNames: vet_id
+            referencedTableName: vets
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            constraintName: fk_vets_specialties_specialty
+            baseTableName: vet_specialties
+            baseColumnNames: specialty_id
+            referencedTableName: specialties
+            referencedColumnNames: id
+
+        - addUniqueConstraint:
+            tableName: vet_specialties
+            columnNames: vet_id, specialty_id
+            constraintName: uq_vets_specialties_vet_specialty
+  - changeSet:
+      id: 012-add-pets-fk
+      author: vsevolodkolmogorov
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: fk_pets_types
+            baseTableName: pets
+            baseColumnNames: type_id
+            referencedTableName: types
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            constraintName: fk_pets_owner
+            baseTableName: pets
+            baseColumnNames: owner_id
+            referencedTableName: owners
+            referencedColumnNames: id
+  - changeSet:
+      id: 016-add-visits-fk
+      author: vsevolodkolmogorov
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: fk_visits_pet
+            baseTableName: visits
+            baseColumnNames: pet_id
+            referencedTableName: pets
+            referencedColumnNames: id
+# Create index
+  - changeSet:
+      id: 002-add-index-vets-last-name
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_vets_last_name
+            tableName: vets
+            columns:
+              - column:
+                  name: last_name
+  - changeSet:
+      id: 004-add-index-specialties-name
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_specialties_name
+            tableName: specialties
+            columns:
+              - column:
+                  name: name
+  - changeSet:
+      id: 008-add-index-types-schema
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_types_name
+            tableName: types
+            columns:
+              - column:
+                  name: name
+  - changeSet:
+      id: 010-add-index-owners-schema
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_owners_last_name
+            tableName: owners
+            columns:
+              - column:
+                  name: last_name
+  - changeSet:
+      id: 005-add-index-pets-schema.yaml
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_pets_name
+            tableName: pets
+            columns:
+              - column:
+                  name: name
+        - createIndex:
+            indexName: idx_pets_owner_id
+            tableName: pets
+            columns:
+              - column:
+                  name: owner_id
+  - changeSet:
+      id: 015-add-index-visits-schema
+      author: vsevolodkolmogorov
+      changes:
+        - createIndex:
+            indexName: idx_visits_pet_id
+            tableName: visits
+            columns:
+              - column:
+                  name: pet_id
